@@ -57,7 +57,7 @@ def list_users():
     users = models.get_users()
     if users:
         for user in users:
-            print("Name: '{:<20}Username: '{:<20}".format(user[1] + "',", user[0] + "'."))
+            print("Name: '{:<20}Username: '{:<20}".format(user[2] + "',", user[1] + "'."))
 
 def add_follower():
     # TODO: Add a follower to the database

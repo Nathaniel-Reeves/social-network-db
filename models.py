@@ -99,12 +99,13 @@ def get_users():
     """Gets all users from the database.
 
         Returns:
-            list: A list of all users.
+            list: A list of all users tuples.
     """
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
     cursor.execute('''
         SELECT
+            people._id,
             people.username,
             people.name
         FROM people 
