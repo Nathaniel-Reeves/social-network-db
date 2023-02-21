@@ -29,7 +29,7 @@ def main():
         title TEXT,
         content TEXT,
         timestamp INTEGER,
-        FOREIGN KEY(author_id) REFERENCES people(_id)
+        FOREIGN KEY(author_id) REFERENCES people(_id) ON DELETE CASCADE
     )''')
     conn.commit()
 
@@ -40,8 +40,8 @@ def main():
         author_id INTEGER,
         content TEXT,
         timestamp INTEGER,
-        FOREIGN KEY(post_id) REFERENCES posts(_id),
-        FOREIGN KEY(author_id) REFERENCES people(_id)
+        FOREIGN KEY(post_id) REFERENCES posts(_id) ON DELETE CASCADE,
+        FOREIGN KEY(author_id) REFERENCES people(_id) ON DELETE CASCADE
     )''')
     conn.commit()
 

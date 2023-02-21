@@ -71,6 +71,10 @@ def list_followers():
     # TODO: List all followers in the database
     pass
 
+def list_following():
+    # TODO: List all people the user is following
+    pass
+
 def add_post():
     # TODO: Add a post to the database
     pass
@@ -105,12 +109,13 @@ Options:
 - 2: Add follower
 - 3: Remove follower
 - 4: List followers
-- 5: Add post
-- 6: Remove post
-- 7: View feed
-- 8: Add comment
-- 9: Remove comment
-- 10: View feed with comments
+- 5: List following
+- 6: Add post
+- 7: Remove post
+- 8: View feed
+- 9: Add comment
+- 10: Remove comment
+- 11: View feed with comments
 - 0: Exit
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~""")
 
@@ -148,16 +153,18 @@ def login_user():
             elif choice == "4":
                 list_followers()
             elif choice == "5":
-                add_post()
+                list_following()
             elif choice == "6":
-                remove_post()
+                add_post()
             elif choice == "7":
-                view_feed()
+                remove_post()
             elif choice == "8":
-                add_comment()
+                view_feed()
             elif choice == "9":
-                remove_comment()
+                add_comment()
             elif choice == "10":
+                remove_comment()
+            elif choice == "11":
                 view_feed_with_comments()
             elif choice == "0":
                 close()
