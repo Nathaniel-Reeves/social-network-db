@@ -12,14 +12,11 @@ Nathaniel Reeves and Marie Sewell on 2/20/2023.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
     print(welcome_message)
-    print()
 
 def close():
-    print("""
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    print("""~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                         Goodbye!
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-""")
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~""")
     sys.exit()
 
 def add_user():
@@ -71,21 +68,44 @@ def view_feed_with_comments():
     pass
 
 def print_user_menu():
-    # TODO: Print the user menu
-    pass
+    print("""~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+User Menu
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Options:
+- 1: Logout
+- 2: Add follower
+- 3: Remove follower
+- 4: List followers
+- 5: Add post
+- 6: Remove post
+- 7: View feed
+- 8: Add comment
+- 9: Remove comment
+- 10: View feed with comments
+- 0: Exit
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~""")
 
 def print_main_menu():
-    # TODO: Print the main menu
-    pass
+    print("""~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Main Menu
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Options:
+- 1: Add a user
+- 2: Remove a user
+- 3: List all users
+- 4: Login user
+- 0: Exit
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~""")
           
 def login_user():
     username = input("What is your username? ")
-    password = input("What is your password? ")
+    password = input("What is your password? ", password=True)
     if models.valid_user(username, password):
         print("Welcome back, " + username)
         while True:
             print_user_menu()
             choice = input("What would you like to do? ")
+            print()
             if choice == "1":
                 print("Goodbye " + username)
                 break
@@ -109,6 +129,8 @@ def login_user():
                 view_feed_with_comments()
             elif choice == "0":
                 close()
+            else:
+                print('''Invalid option. Please enter the number corresponding \nto the option you wish to perform.''')
     else:
         print("Invalid username or password.")
 
@@ -122,6 +144,7 @@ def main():
     while True:
         print_main_menu()
         choice = input("What would you like to do? ")
+        print()
         if choice == "1":
             add_user()
         elif choice == "2":
@@ -132,6 +155,8 @@ def main():
             login_user()
         elif choice == "0":
             break
+        else:
+            print('''Invalid option. Please enter the number corresponding \nto the option you wish to perform.''')
     close()
 
 if __name__ == "__main__":
