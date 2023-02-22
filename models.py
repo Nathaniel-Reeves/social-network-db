@@ -2,6 +2,7 @@
 
 import sqlite3
 import bcrypt
+from datetime import datetime
 
 # Define the name of the database and a salt value for password hashing.
 DATABASE = 'test.db'
@@ -114,15 +115,76 @@ def get_users():
     conn.close()
     return result
 
-def add_comment(post_id, content):
+def get_user_id(username):
+    """Returns the id of the user with the given username.
+
+    Args:
+        username (str): The username of the user.
+
+    Returns:
+        int: The id of the user.
+    """
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+
+    # Retrieve the id of the user with the given username
+    cursor.execute('SELECT _id FROM people WHERE username = ?', (username,))
+    user_id = cursor.fetchone()[0]
+
+    # Close the database connection and return the user ID
+    conn.close()
+    return user_id
+
+def get_username_by_id(user_id):
+    """Returns the username of a user given their ID.
+
+    Args:
+        user_id (int): The ID of the user to lookup.
+
+    Returns:
+        str: The username of the user.
+    """
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT username FROM people WHERE _id = ?', (user_id,))
+    result = cursor.fetchone()
+
+    conn.close()
+
+    return result[0] if result else None
+
+def get_comments_by_post_id(post_id):
+    """Fetches all comments for a given post from the database.
+
+    Args:
+        post_id (int): The id of the post for which to fetch comments.
+
+    Returns:
+        list of dict: A list of dictionaries, where each dictionary represents a comment.
+    """
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+
+    # Fetch comments for given post ID
+    cursor.execute('SELECT * FROM comments WHERE post_id = ?', (post_id,))
+    comments = cursor.fetchall()
+
+    # Close database connection and return comments
+    conn.close()
+    return comments
+
+
+def add_comment(post_id, author_id, content):
     """Adds a comment to the database.
 
-        Args:
-            post_id (int): The id of the post being commmented on.
-            content (str): The content of the comment.
+    Args:
+        post_id (int): The id of the post being commented on.
+        author_id (int): The id of the user adding the comment.
+        content (str): The content of the comment.
 
-        Returns:
-            str: Comment added
+    Returns:
+        str: Comment added
     """
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
@@ -134,8 +196,9 @@ def add_comment(post_id, content):
         return None  # Return None if post with given ID does not exist
 
     # Insert new comment into comments table
-    cursor.execute('INSERT INTO comments (post_id, content) VALUES (?, ?)',
-                   (post_id, content))
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    cursor.execute('INSERT INTO comments (post_id, author_id, content, timestamp) VALUES (?, ?, ?, ?)',
+                   (post_id, author_id, content, timestamp))
     conn.commit()
 
     # Get ID of new comment
@@ -163,26 +226,32 @@ def remove_comment(comment_id):
     cursor = conn.cursor()
 
     # Delete the comment with the given ID
-    cursor.execute("DELETE FROM comments WHERE id=?", (comment_id,))
+    cursor.execute("DELETE FROM comments WHERE _id=?", (comment_id,))
     conn.commit()
 
     # Close the connection and return success
     conn.close()
     return True
 
-def get_all_posts_with_comments():
+def get_feed_with_comments():
+    """Returns all posts and their associated comments."""
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
 
-    # get all posts
-    cursor.execute("SELECT * FROM posts")
-    posts = cursor.fetchall()
+    # Join posts and comments tables
+    cursor.execute('SELECT posts._id, posts.author_id, posts.content, comments._id, comments.author_id, comments.content '
+                   'FROM posts LEFT JOIN comments ON posts._id = comments.post_id')
 
-    # get all comments for each post
-    for i, post in enumerate(posts):
-        cursor.execute("SELECT * FROM comments WHERE post_id=?", (post[0],))
-        comments = cursor.fetchall()
-        posts[i] = (post, comments)
+    # Group results by post ID to combine posts with their comments
+    results = cursor.fetchall()
+    feed = {}
+    for row in results:
+        post_id = row[0]
+        if post_id not in feed:
+            feed[post_id] = (row[0], row[1], row[2], [])
+        if row[3]:
+            feed[post_id][3].append((row[3], row[4], row[5]))
 
+    # Close database connection and return feed
     conn.close()
-    return posts
+    return list(feed.values())

@@ -90,25 +90,40 @@ def view_feed():
 
 def add_comment():
     """adds a comment to the database."""
-    id = input("Enter id of post you would like to comment on")
-    comment = input("Enter comment")
-    models.add_comment(id, comment)
+    id = input("Enter id of post you would like to comment on: ")
+    username = input("Enter your username: ")
+    comment = input("Enter comment: ")
+    models.add_comment(id, models.get_user_id(username), comment)
     
 
 def remove_comment():
     """deletes a comment from the database."""
-    id = input("Enter id of comment you would like to delete")
+    id = input("Enter id of comment you would like to delete: ")
     models.remove_comment(id)
 
 def view_feed_with_comments():
-    posts = models.get_all_posts_with_comments()
-    for post, comments in posts:
-        print(f"{post[1]} ({post[2]})")
-        print(post[3])
+    """Displays all posts and their comments."""
+    feed = models.get_feed_with_comments()
+
+    for post in feed:
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print(f"Post ID: {post[0]}")
+        print(f"Username: {models.get_username_by_id(post[1])}")
+        print(f"Content: {post[2]}")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print("Comments:")
-        for comment in comments:
-            print(f"{comment[2]}: {comment[3]}")
         print()
+        if post[3]:
+            for comment in post[3]:
+                print(f"Comment ID: {comment[0]}")
+                print(f"Username: {models.get_username_by_id(comment[1])}")
+                print(f"Content: {comment[2]}")
+                print()
+        else:
+            print("No comments.")
+
+        print("\n")
+
 
 def print_user_menu():
     """Prints the user's menu."""
