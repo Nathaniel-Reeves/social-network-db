@@ -33,7 +33,7 @@ def add_user():
             print("That username is already in use.")
         else:
             break
-    password = input("What is your password? ", password=True)
+    password = getpass.getpass(prompt="What is your password? ")
     _id = models.create_user(name, username, password)
     if _id:
         print(f"User {username} has been added.")
@@ -47,7 +47,7 @@ def remove_user():
         if not models.user_exists(username):
             break
         print("That username does not exist.")
-    password = input("What is your password? ", password=True)
+    password = getpass.getpass(prompt="What is your password? ")
     if models.delete_user(username, password):
         print(f"User {username} has been removed.")
     else:
