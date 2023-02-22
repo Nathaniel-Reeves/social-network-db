@@ -88,16 +88,26 @@ def view_feed():
     pass
 
 def add_comment():
-    # TODO: Add a comment to the database
-    pass
+    """adds a comment to the database."""
+    id = input("Enter id of post you would like to comment on")
+    comment = input("Enter comment")
+    models.add_comment(id, comment)
+    
 
 def remove_comment():
-    # TODO: Remove a comment from the database
-    pass
+    """deletes a comment from the database."""
+    id = input("Enter id of comment you would like to delete")
+    models.remove_comment(id)
 
 def view_feed_with_comments():
-    # TODO: List all posts with comments in the database
-    pass
+    posts = models.get_all_posts_with_comments()
+    for post, comments in posts:
+        print(f"{post[1]} ({post[2]})")
+        print(post[3])
+        print("Comments:")
+        for comment in comments:
+            print(f"{comment[2]}: {comment[3]}")
+        print()
 
 def print_user_menu():
     """Prints the user's menu."""

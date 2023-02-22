@@ -113,3 +113,76 @@ def get_users():
     result = cursor.fetchall()
     conn.close()
     return result
+
+def add_comment(post_id, content):
+    """Adds a comment to the database.
+
+        Args:
+            post_id (int): The id of the post being commmented on.
+            content (str): The content of the comment.
+
+        Returns:
+            str: Comment added
+    """
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+
+    # Check if post with given ID exists
+    cursor.execute('SELECT * FROM posts WHERE _id = ?', (post_id,))
+    post = cursor.fetchone()
+    if not post:
+        return None  # Return None if post with given ID does not exist
+
+    # Insert new comment into comments table
+    cursor.execute('INSERT INTO comments (post_id, content) VALUES (?, ?)',
+                   (post_id, content))
+    conn.commit()
+
+    # Get ID of new comment
+    comment_id = cursor.lastrowid
+
+    # Fetch newly created comment
+    cursor.execute('SELECT * FROM comments WHERE _id = ?', (comment_id,))
+    comment = cursor.fetchone()
+
+    # Close database connection and return newly created comment
+    conn.close()
+    return comment
+
+
+def remove_comment(comment_id):
+    """removes a comment from the database.
+
+        Args:
+            comment_id (int): The id of the comment being deleted.
+
+        Returns:
+            bool: If comment was deleted
+    """
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+
+    # Delete the comment with the given ID
+    cursor.execute("DELETE FROM comments WHERE id=?", (comment_id,))
+    conn.commit()
+
+    # Close the connection and return success
+    conn.close()
+    return True
+
+def get_all_posts_with_comments():
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+
+    # get all posts
+    cursor.execute("SELECT * FROM posts")
+    posts = cursor.fetchall()
+
+    # get all comments for each post
+    for i, post in enumerate(posts):
+        cursor.execute("SELECT * FROM comments WHERE post_id=?", (post[0],))
+        comments = cursor.fetchall()
+        posts[i] = (post, comments)
+
+    conn.close()
+    return posts
