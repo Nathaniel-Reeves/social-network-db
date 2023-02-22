@@ -3,6 +3,7 @@
 import os
 import sys
 import models
+import getpass
 
 def welcome():
     """Prints the welcome message."""
@@ -146,7 +147,7 @@ def login_user():
     """Login user."""
 
     username = input("What is your username? ")
-    password = input("What is your password? ", password=True)
+    password = getpass.getpass(prompt="What is your password? ")
     if models.valid_user(username, password):
         print("Welcome back, " + username)
         while True:
