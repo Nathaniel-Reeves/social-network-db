@@ -3,6 +3,7 @@
 import os
 import sys
 import models
+import getpass
 
 def welcome():
     """Prints the welcome message."""
@@ -32,7 +33,7 @@ def add_user():
             print("That username is already in use.")
         else:
             break
-    password = input("What is your password? ", password=True)
+    password = getpass.getpass(prompt="What is your password? ")
     _id = models.create_user(name, username, password)
     if _id:
         print(f"User {username} has been added.")
@@ -46,7 +47,7 @@ def remove_user():
         if not models.user_exists(username):
             break
         print("That username does not exist.")
-    password = input("What is your password? ", password=True)
+    password = getpass.getpass(prompt="What is your password? ")
     if models.delete_user(username, password):
         print(f"User {username} has been removed.")
     else:
@@ -88,16 +89,41 @@ def view_feed():
     pass
 
 def add_comment():
-    # TODO: Add a comment to the database
-    pass
+    """adds a comment to the database."""
+    id = input("Enter id of post you would like to comment on: ")
+    username = input("Enter your username: ")
+    comment = input("Enter comment: ")
+    models.add_comment(id, models.get_user_id(username), comment)
+    
 
 def remove_comment():
-    # TODO: Remove a comment from the database
-    pass
+    """deletes a comment from the database."""
+    id = input("Enter id of comment you would like to delete: ")
+    models.remove_comment(id)
 
 def view_feed_with_comments():
-    # TODO: List all posts with comments in the database
-    pass
+    """Displays all posts and their comments."""
+    feed = models.get_feed_with_comments()
+
+    for post in feed:
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print(f"Post ID: {post[0]}")
+        print(f"Username: {models.get_username_by_id(post[1])}")
+        print(f"Content: {post[2]}")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print("Comments:")
+        print()
+        if post[3]:
+            for comment in post[3]:
+                print(f"Comment ID: {comment[0]}")
+                print(f"Username: {models.get_username_by_id(comment[1])}")
+                print(f"Content: {comment[2]}")
+                print()
+        else:
+            print("No comments.")
+
+        print("\n")
+
 
 def print_user_menu():
     """Prints the user's menu."""
@@ -136,7 +162,7 @@ def login_user():
     """Login user."""
 
     username = input("What is your username? ")
-    password = input("What is your password? ", password=True)
+    password = getpass.getpass(prompt="What is your password? ")
     if models.valid_user(username, password):
         print("Welcome back, " + username)
         while True:
