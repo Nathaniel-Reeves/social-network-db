@@ -61,20 +61,47 @@ def list_users():
             print("Name: '{:<20}Username: '{:<20}".format(user[2] + "',", user[1] + "'."))
 
 def add_follower():
-    # TODO: Add a follower to the database
-    pass
+    follower_username = input("Enter your username: ")
+    followee_username = input("Enter the username of the friend you would like to add: ")
+    
+    follower_id = models.get_user_id(follower_username)
+    followee_id = models.get_user_id(followee_username)
+    
+    if not follower_id or not followee_id:
+        print("Error: Invalid username entered.")
+        return
+    
+    result = models.add_follower(follower_id, followee_id)
+    
+    if result:
+        print("Follower added successfully.")
+    else:
+        print("Error: Unable to add follower.")
 
 def remove_follower():
-    # TODO: Remove a follower from the database
-    pass
+    """Prompts the user for follower and followed user IDs and removes follower."""
+    follower_username = input("Enter your username: ")
+    followee_username = input("Enter the username of the friend to remove: ")
 
-def list_followers():
-    # TODO: List all followers in the database
-    pass
+    follower_id = models.get_user_id(follower_username)
+    followee_id = models.get_user_id(followee_username)
 
-def list_following():
-    # TODO: List all people the user is following
-    pass
+    message = models.remove_follower(follower_id, followee_id)
+    print(message)
+
+def list_followers_and_following():
+    """List the current user's followers and users they are following."""
+    current_user_id = models.get_user_id(input("Enter your username: "))
+
+    followers, following = models.get_followers_and_following(current_user_id)
+
+    print("Followers:")
+    for follower in followers:
+        print(follower)
+
+    print("\nFollowing:")
+    for followee in following:
+        print(followee)
 
 def add_post():
     # TODO: Add a post to the database
@@ -133,9 +160,8 @@ User Menu
 Options:
 - 1: Logout
 - 2: Add follower
-- 3: Remove follower
-- 4: List followers
-- 5: List following
+- 3: Unfollow a user
+- 4: List friends
 - 6: Add post
 - 7: Remove post
 - 8: View feed
@@ -177,9 +203,9 @@ def login_user():
             elif choice == "3":
                 remove_follower()
             elif choice == "4":
-                list_followers()
+                list_followers_and_following()
             elif choice == "5":
-                list_following()
+                list_followers_and_following()
             elif choice == "6":
                 add_post()
             elif choice == "7":
