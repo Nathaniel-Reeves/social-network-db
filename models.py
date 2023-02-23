@@ -255,3 +255,4 @@ def get_feed_with_comments():
     # Close database connection and return feed
     conn.close()
     return list(feed.values())
+
