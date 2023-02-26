@@ -5,6 +5,23 @@ import sys
 import models
 import getpass
 
+class Session:
+    """Creates a new session."""
+    def __init__(self, username=""):
+        self.username = username
+    
+    def login(self, username):
+        """login user"""
+        self.username = username
+
+    def logout(self):
+        """logout user"""
+        self.username = ""
+
+    def get_username(self):
+        """get username"""
+        return self.username
+    
 def welcome():
     """Prints the welcome message."""
     welcome_message = """
@@ -95,17 +112,44 @@ def list_followers_and_following(session):
     """List the current user's followers and users they are following."""
     current_user_id = models.get_user_id(session.get_username())
 
-def add_post():
-    # TODO: Add a post to the database
-    pass
+def add_post(session):
+    """Adds a new post to the database."""
+    user_id = models.get_user_id(session.get_username())
+    title = input("What is the title of the post? ")
+    content = input("What is the content of the post? ")
 
-def remove_post():
-    # TODO: Remove a post from the database
-    pass
+    post_id = models.create_post(user_id, title, content)
+    if post_id:
+        print(f"Post ID: {post_id}")
+        print("Post added successfully.")
+    else:
+        print("Something went wrong. Try again.")
 
-def view_feed():
-    # TODO: List all posts in the database
-    pass
+def remove_post(session):
+    """Removes a post from the database."""
+    user_id = models.get_user_id(session.get_username())
+    post_id = input("Enter the ID of the post you would like to remove: ")
+
+    result = models.remove_post(user_id, post_id)
+    if result:
+        print("Post removed successfully.")
+        print()
+    else:
+        print("Something went wrong. Try again.")
+
+def view_feed(session):
+    """Displays all posts in the database."""
+    feed = models.get_feed()
+
+    for post in feed:
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print(f"Post ID: {post[0]}")
+        print(f"Username: {models.get_username_by_id(post[1])}")
+        print(f"Title: {post[2]}")
+        print(f"Content: {post[3]}")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    print()
+
 
 def add_comment():
     """adds a comment to the database."""
@@ -154,14 +198,13 @@ Options:
 - 1: Logout
 - 2: Add follower
 - 3: Remove follower
-- 4: List followers
-- 5: List following
-- 6: Add post
-- 7: Remove post
-- 8: View feed
-- 9: Add comment
-- 10: Remove comment
-- 11: View feed with comments
+- 4: List friends
+- 5: Add post
+- 6: Remove post
+- 7: View feed
+- 8: Add comment
+- 9: Remove comment
+- 10: View feed with comments
 - 0: Exit
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~""")
 
@@ -185,33 +228,33 @@ def login_user():
     password = getpass.getpass(prompt="What is your password? ")
     if models.valid_user(username, password):
         print("Welcome back, " + username)
+        session = Session(username)
         while True:
             print_user_menu()
             choice = input("What would you like to do? ")
             print()
             if choice == "1":
                 print("Goodbye " + username)
+                session.logout()
                 break
             elif choice == "2":
-                add_follower()
+                add_follower(session)
             elif choice == "3":
-                remove_follower()
+                remove_follower(session)
             elif choice == "4":
-                list_followers()
+                list_followers_and_following(session)
             elif choice == "5":
-                list_following()
+                add_post(session)
             elif choice == "6":
-                add_post()
+                remove_post(session)
             elif choice == "7":
-                remove_post()
+                view_feed(session)
             elif choice == "8":
-                view_feed()
+                add_comment(session)
             elif choice == "9":
-                add_comment()
+                remove_comment(session)
             elif choice == "10":
-                remove_comment()
-            elif choice == "11":
-                view_feed_with_comments()
+                view_feed_with_comments(session)
             elif choice == "0":
                 close()
             else:

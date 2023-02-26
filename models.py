@@ -256,3 +256,32 @@ def get_feed_with_comments():
     conn.close()
     return list(feed.values())
 
+def create_post(author_id, title, content):
+    """Creates a new post in the database."""
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    cursor.execute('INSERT INTO posts (author_id, title, content, timestamp) VALUES (?,?,?,?)',
+                   (author_id, title, content, timestamp))
+    conn.commit()
+    conn.close()
+    return cursor.lastrowid
+
+def delete_post(post_id):
+    """Deletes a post from the database."""
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM posts WHERE _id =?', (post_id,))
+    conn.commit()
+    conn.close()
+    return conn.total_changes
+
+def fetch_feed():
+    """Fetches all posts from the database."""
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM posts')
+    posts = cursor.fetchall()
+    conn.close()
+    return posts
+
