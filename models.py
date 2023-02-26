@@ -129,7 +129,12 @@ def get_user_id(username):
 
     # Retrieve the id of the user with the given username
     cursor.execute('SELECT _id FROM people WHERE username = ?', (username,))
-    user_id = cursor.fetchone()[0]
+    row = cursor.fetchone()
+
+    if row:
+        user_id = row[0]
+    else:
+        user_id = 0
 
     # Close the database connection and return the user ID
     conn.close()
