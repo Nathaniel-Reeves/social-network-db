@@ -6,7 +6,8 @@ import models
 def main():
     if os.path.exists(models.DATABASE):
         os.remove(models.DATABASE)
-        print(f"The file {models.DATABASE} has been deleted.")
+        if __name__ == "__main__":
+            print(f"The file {models.DATABASE} has been deleted.")
     else:
         print(f"The file {models.DATABASE} does not exist in the current working directory.")
 
@@ -195,7 +196,8 @@ def main():
         )
         conn.commit()
 
-    print("{} file was successfully created!".format(models.DATABASE))
+    if __name__ == '__main__':
+        print("{} file was successfully created!".format(models.DATABASE))
 
 if __name__ == "__main__":
     main()

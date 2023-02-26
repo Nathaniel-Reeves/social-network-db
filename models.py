@@ -5,7 +5,10 @@ import bcrypt
 from datetime import datetime
 
 # Define the name of the database and a salt value for password hashing.
-DATABASE = 'test.db'
+if __name__ == '__main__':
+    DATABASE = 'social_media.db'
+else:
+    DATABASE = 'test.db'
 SALT = b'$2b$12$bCkhk/dnjeaHnxqYLh39be'
 
 
@@ -129,7 +132,11 @@ def get_user_id(username):
 
     # Retrieve the id of the user with the given username
     cursor.execute('SELECT _id FROM people WHERE username = ?', (username,))
-    user_id = cursor.fetchone()[0]
+    row = cursor.fetchone()
+    if row:
+        user_id = row[0]
+    else:
+        user_id = None
 
     # Close the database connection and return the user ID
     conn.close()
@@ -194,6 +201,12 @@ def add_comment(post_id, author_id, content):
     post = cursor.fetchone()
     if not post:
         return None  # Return None if post with given ID does not exist
+    
+    # Check if user with given ID exists
+    cursor.execute('SELECT * FROM people WHERE _id =?', (author_id,))
+    user = cursor.fetchone()
+    if not user:
+        return None  # Return None if user with given ID does not exist
 
     # Insert new comment into comments table
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -230,8 +243,9 @@ def remove_comment(comment_id):
     conn.commit()
 
     # Close the connection and return success
+    changes = conn.total_changes
     conn.close()
-    return True
+    return not not changes
 
 def get_feed_with_comments():
     """Returns all posts and their associated comments."""
@@ -264,8 +278,9 @@ def create_post(author_id, title, content):
     cursor.execute('INSERT INTO posts (author_id, title, content, timestamp) VALUES (?,?,?,?)',
                    (author_id, title, content, timestamp))
     conn.commit()
+    post_id = cursor.lastrowid
     conn.close()
-    return cursor.lastrowid
+    return post_id
 
 def delete_post(post_id):
     """Deletes a post from the database."""
@@ -273,8 +288,9 @@ def delete_post(post_id):
     cursor = conn.cursor()
     cursor.execute('DELETE FROM posts WHERE _id =?', (post_id,))
     conn.commit()
+    changes = conn.total_changes
     conn.close()
-    return conn.total_changes
+    return not changes
 
 def fetch_post_feed():
     """Fetches all posts from the database."""
