@@ -105,17 +105,15 @@ def main():
 
     for i in range(len(posts)):
         c.execute('''INSERT INTO posts (
-            _id,
             author_id,
             title,
             content,
             timestamp
-        ) VALUES (?,?,?,?,?)''', (
+        ) VALUES (?,?,?,?)''', (
             posts[i][0],
             posts[i][1],
             posts[i][2],
-            posts[i][3],
-            posts[i][4]
+            posts[i][3]
             )
         )
         conn.commit()
