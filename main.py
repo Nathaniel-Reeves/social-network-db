@@ -128,12 +128,13 @@ def view_feed_with_comments():
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print(f"Post ID: {post[0]}")
         print(f"Username: {models.get_username_by_id(post[1])}")
-        print(f"Content: {post[2]}")
+        print(f"Title: {post[2]}")
+        print(f"Content: {post[3]}")
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print("Comments:")
         print()
         if post[3]:
-            for comment in post[3]:
+            for comment in post[4]:
                 print(f"Comment ID: {comment[0]}")
                 print(f"Username: {models.get_username_by_id(comment[1])}")
                 print(f"Content: {comment[2]}")

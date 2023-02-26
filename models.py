@@ -239,7 +239,7 @@ def get_feed_with_comments():
     cursor = conn.cursor()
 
     # Join posts and comments tables
-    cursor.execute('SELECT posts._id, posts.author_id, posts.content, comments._id, comments.author_id, comments.content '
+    cursor.execute('SELECT posts._id, posts.author_id, posts.title, posts.content, comments._id, comments.author_id, comments.content '
                    'FROM posts LEFT JOIN comments ON posts._id = comments.post_id')
 
     # Group results by post ID to combine posts with their comments
@@ -248,9 +248,9 @@ def get_feed_with_comments():
     for row in results:
         post_id = row[0]
         if post_id not in feed:
-            feed[post_id] = (row[0], row[1], row[2], [])
-        if row[3]:
-            feed[post_id][3].append((row[3], row[4], row[5]))
+            feed[post_id] = (row[0], row[1], row[2], row[3], [])
+        if row[4]:
+            feed[post_id][4].append((row[4], row[5], row[6]))
 
     # Close database connection and return feed
     conn.close()
