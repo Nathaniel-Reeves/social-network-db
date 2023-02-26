@@ -95,10 +95,6 @@ def list_followers_and_following(session):
     """List the current user's followers and users they are following."""
     current_user_id = models.get_user_id(session.get_username())
 
-def add_follower():
-    # TODO: Add a follower to the database
-    pass
-
 def add_post():
     # TODO: Add a post to the database
     pass
