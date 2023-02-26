@@ -276,7 +276,7 @@ def delete_post(post_id):
     conn.close()
     return conn.total_changes
 
-def fetch_feed():
+def fetch_post_feed():
     """Fetches all posts from the database."""
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()

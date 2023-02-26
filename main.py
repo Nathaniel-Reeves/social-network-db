@@ -78,6 +78,7 @@ def list_users():
             print("Name: '{:<20}Username: '{:<20}".format(user[2] + "',", user[1] + "'."))
 
 def add_follower(session):
+    """Prompts the user to add a follower to a user."""
     follower_username = session.get_username()
     
     followee_username = input("Enter the username of the friend you would like to add: ")
@@ -97,7 +98,7 @@ def add_follower(session):
         print("Error: Unable to add follower.")
 
 def remove_follower(session):
-    """Prompts the user for follower and followed user IDs and removes follower."""
+    """Prompts the user for follower and followed user IDs and removes follower"""
     follower_username = session.get_username()
     
     followee_username = input("Enter the username of the friend to remove: ")
@@ -139,7 +140,7 @@ def remove_post(session):
 
 def view_feed(session):
     """Displays all posts in the database."""
-    feed = models.get_feed()
+    feed = models.fetch_post_feed()
 
     for post in feed:
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -150,14 +151,12 @@ def view_feed(session):
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     print()
 
-
 def add_comment():
     """adds a comment to the database."""
     id = input("Enter id of post you would like to comment on: ")
     username = input("Enter your username: ")
     comment = input("Enter comment: ")
     models.add_comment(id, models.get_user_id(username), comment)
-    
 
 def remove_comment():
     """deletes a comment from the database."""
