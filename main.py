@@ -60,20 +60,43 @@ def list_users():
         for user in users:
             print("Name: '{:<20}Username: '{:<20}".format(user[2] + "',", user[1] + "'."))
 
+def add_follower(session):
+    follower_username = session.get_username()
+    
+    followee_username = input("Enter the username of the friend you would like to add: ")
+    
+    follower_id = models.get_user_id(follower_username)
+    followee_id = models.get_user_id(followee_username)
+    
+    if not follower_id or not followee_id:
+        print("Error: Invalid username entered.")
+        return
+    
+    result = models.add_follower(follower_id, followee_id)
+    
+    if result:
+        print("Follower added successfully.")
+    else:
+        print("Error: Unable to add follower.")
+
+def remove_follower(session):
+    """Prompts the user for follower and followed user IDs and removes follower."""
+    follower_username = session.get_username()
+    
+    followee_username = input("Enter the username of the friend to remove: ")
+
+    follower_id = models.get_user_id(follower_username)
+    followee_id = models.get_user_id(followee_username)
+
+    message = models.remove_follower(follower_id, followee_id)
+    print(message)
+
+def list_followers_and_following(session):
+    """List the current user's followers and users they are following."""
+    current_user_id = models.get_user_id(session.get_username())
+=======
 def add_follower():
     # TODO: Add a follower to the database
-    pass
-
-def remove_follower():
-    # TODO: Remove a follower from the database
-    pass
-
-def list_followers():
-    # TODO: List all followers in the database
-    pass
-
-def list_following():
-    # TODO: List all people the user is following
     pass
 
 def add_post():
