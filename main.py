@@ -74,6 +74,7 @@ def list_users():
         for user in users:
             print("Name: '{:<20}Username: '{:<20}".format(user[2] + "',", user[1] + "'."))
 
+
 def add_follower(session):
     follower_username = session.get_username()
     
