@@ -115,6 +115,12 @@ def view_feed():
     # TODO: List all posts in the database
     pass
 
+def get_most_active_user():
+    user = models.get_most_active_user()
+    print()
+    print("Most active user is:", user)
+    print()
+
 def add_comment():
     """adds a comment to the database."""
     id = input("Enter id of post you would like to comment on: ")
@@ -168,6 +174,7 @@ Options:
 - 9: Add comment
 - 10: Remove comment
 - 11: View feed with comments
+- 12: Get most active user
 - 0: Exit
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~""")
 
@@ -218,6 +225,8 @@ def login_user():
                 remove_comment()
             elif choice == "11":
                 view_feed_with_comments()
+            elif choice == "12":
+                get_most_active_user()
             elif choice == "0":
                 close()
             else:
