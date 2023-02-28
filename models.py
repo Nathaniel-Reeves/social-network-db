@@ -53,10 +53,10 @@ def user_exists(username):
         SELECT
             people.username
         FROM people 
-        WHERE people.username =? ''', (username,))
+        WHERE people.username = ? ''', (username,))
     result = cursor.fetchone()
     conn.close()
-    return result is not None
+    return not not result
 
 def create_user(name, username, password):
     """Creates a new user in the database.
@@ -225,7 +225,6 @@ def add_comment(post_id, author_id, content):
     conn.close()
     return comment
 
-
 def remove_comment(comment_id):
     """removes a comment from the database.
 
@@ -296,7 +295,7 @@ def fetch_post_feed():
     """Fetches all posts from the database."""
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM posts')
+    cursor.execute('SELECT _id, author_id, title, content FROM posts')
     posts = cursor.fetchall()
     conn.close()
     return posts
@@ -331,3 +330,109 @@ def get_most_active_user():
     conn.close()
     return most_active_user
 
+
+def add_follower(user_id, follower_id):
+    """Adds a follower to a user in the database.
+    Args:
+        user_id (int): The ID of the user being followed.
+        follower_id (int): The ID of the follower.
+    Returns:
+        str: Message indicating whether the follower was added.
+    """
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+
+    # Check if user with given ID exists
+    cursor.execute('SELECT * FROM people WHERE _id = ?', (user_id,))
+    user = cursor.fetchone()
+    if not user:
+        return "User not found"
+
+    # Check if follower with given ID exists
+    cursor.execute('SELECT * FROM people WHERE _id = ?', (follower_id,))
+    follower = cursor.fetchone()
+    if not follower:
+        return "Follower not found"
+
+    # Check if follower is already following user
+    cursor.execute('SELECT * FROM following WHERE _id = ? AND following_id = ?',
+                   (user_id, follower_id))
+    existing_follower = cursor.fetchone()
+    if existing_follower:
+        return "Follower already exists"
+
+    # Insert new follower into followers table
+    cursor.execute('INSERT INTO following (_id, following_id) VALUES (?, ?)',
+                   (user_id, follower_id))
+    conn.commit()
+
+    # Close database connection and return success message
+    conn.close()
+    return "Follower added"
+
+
+def remove_follower(follower_id, followed_id):
+    """Removes a follower from a user's list of followers.
+    Args:
+        follower_id (int): The ID of the user who is following.
+        followed_id (int): The ID of the user being followed.
+    Returns:
+        str: Message indicating whether follower was removed or not.
+    """
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+
+    # Check if follower exists
+    cursor.execute('SELECT * FROM people WHERE _id = ?', (follower_id,))
+    follower = cursor.fetchone()
+    if not follower:
+        conn.close()
+        return f"User with ID {follower_id} does not exist."
+
+    # Check if followed user exists
+    cursor.execute('SELECT * FROM people WHERE _id = ?', (followed_id,))
+    followed = cursor.fetchone()
+    if not followed:
+        conn.close()
+        return f"User with ID {followed_id} does not exist."
+
+    # Check if follower is already following followed user
+    cursor.execute('SELECT * FROM following WHERE _id = ? AND following_id = ?',
+                   (follower_id, followed_id))
+    existing_follower = cursor.fetchone()
+    if not existing_follower:
+        conn.close()
+        return f"User with ID {follower_id} is not following user with ID {followed_id}."
+
+    # Remove follower from database
+    cursor.execute('DELETE FROM following WHERE _id = ? AND following_id = ?',
+                   (follower_id, followed_id))
+    conn.commit()
+    conn.close()
+
+    return f"User with ID {follower_id} successfully unfollowed user with ID {followed_id}."
+
+
+def get_followers_and_following(user_id):
+    """Get list of followers and users being followed by user with given ID.
+    Args:
+        user_id (int): The ID of the user.
+    Returns:
+        Tuple[List[str], List[str]]: The first list contains the usernames of followers, the second list contains the usernames of users being followed.
+    """
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+
+    # Get list of followers
+    cursor.execute(
+        'SELECT people.username FROM people INNER JOIN following ON people._id = following._id WHERE following.following_id = ?', (user_id,))
+    followers = [row[0] for row in cursor.fetchall()]
+
+    # Get list of users being followed
+    cursor.execute(
+        'SELECT people.username FROM people INNER JOIN following ON people._id = following.following_id WHERE following._id = ?', (user_id,))
+    following = [row[0] for row in cursor.fetchall()]
+
+    # Close database connection and return results
+    conn.close()
+    return followers, following

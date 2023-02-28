@@ -5,6 +5,22 @@ import sys
 import models
 import getpass
 
+
+class Session:
+    """Creates a new session."""
+
+    def __init__(self, username=""):
+        self.username = username
+
+    def login(self, username):
+        self.username = username
+
+    def logout(self):
+        self.username = ""
+
+    def get_username(self):
+        return self.username
+
 def welcome():
     """Prints the welcome message."""
     welcome_message = """
@@ -44,7 +60,7 @@ def remove_user():
     """Removes a user from the database."""
     while True:
         username = input("What is your username? ")
-        if not models.user_exists(username):
+        if models.user_exists(username):
             break
         print("That username does not exist.")
     password = getpass.getpass(prompt="What is your password? ")
@@ -60,8 +76,8 @@ def list_users():
         for user in users:
             print("Name: '{:<20}Username: '{:<20}".format(user[2] + "',", user[1] + "'."))
 
-def add_follower():
-    follower_username = input("Enter your username: ")
+def add_follower(session):
+    follower_username = session.get_username()
     followee_username = input("Enter the username of the friend you would like to add: ")
     
     follower_id = models.get_user_id(follower_username)
@@ -78,9 +94,9 @@ def add_follower():
     else:
         print("Error: Unable to add follower.")
 
-def remove_follower():
+def remove_follower(session):
     """Prompts the user for follower and followed user IDs and removes follower."""
-    follower_username = input("Enter your username: ")
+    follower_username = session.get_username()
     followee_username = input("Enter the username of the friend to remove: ")
 
     follower_id = models.get_user_id(follower_username)
@@ -89,9 +105,9 @@ def remove_follower():
     message = models.remove_follower(follower_id, followee_id)
     print(message)
 
-def list_followers_and_following():
+def list_followers_and_following(session):
     """List the current user's followers and users they are following."""
-    current_user_id = models.get_user_id(input("Enter your username: "))
+    current_user_id = models.get_user_id(session.get_username())
 
     followers, following = models.get_followers_and_following(current_user_id)
 
@@ -103,17 +119,31 @@ def list_followers_and_following():
     for followee in following:
         print(followee)
 
-def add_post():
-    # TODO: Add a post to the database
-    pass
+def add_post(session):
+    """Prompts the user for a post and adds it to the database."""
+    title = input("What is the title of the post? ")
+    content = input("What is the content of the post? ")
+    username = session.get_username()
+    models.create_post(models.get_user_id(username), title, content)
+    print("Post added successfully.")
 
-def remove_post():
-    # TODO: Remove a post from the database
-    pass
+def remove_post(session):
+    """Prompts the user for a post and removes it from the database."""
+    id = input("Enter id of post you would like to delete: ")
+    models.delete_post(id)
+    print("Post deleted successfully.")
 
 def view_feed():
-    # TODO: List all posts in the database
-    pass
+    """Displays all posts."""
+    feed = models.fetch_post_feed()
+    if feed:
+        for post in feed:
+            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print(f"Post ID: {post[0]}")
+            print(f"Username: {models.get_username_by_id(post[1])}")
+            print(f"Title: {post[2]}")
+            print(f"Content: {post[3]}")
+            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
 def get_most_active_user():
     user = models.get_most_active_user()
@@ -121,13 +151,12 @@ def get_most_active_user():
     print("Most active user is:", user)
     print()
 
-def add_comment():
+def add_comment(session):
     """adds a comment to the database."""
     id = input("Enter id of post you would like to comment on: ")
-    username = input("Enter your username: ")
+    username = session.get_username()
     comment = input("Enter comment: ")
     models.add_comment(id, models.get_user_id(username), comment)
-    
 
 def remove_comment():
     """deletes a comment from the database."""
@@ -142,12 +171,13 @@ def view_feed_with_comments():
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print(f"Post ID: {post[0]}")
         print(f"Username: {models.get_username_by_id(post[1])}")
-        print(f"Content: {post[2]}")
+        print(f"Title: {post[2]}")
+        print(f"Content: {post[3]}")
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print("Comments:")
         print()
         if post[3]:
-            for comment in post[3]:
+            for comment in post[4]:
                 print(f"Comment ID: {comment[0]}")
                 print(f"Username: {models.get_username_by_id(comment[1])}")
                 print(f"Content: {comment[2]}")
@@ -156,7 +186,6 @@ def view_feed_with_comments():
             print("No comments.")
 
         print("\n")
-
 
 def print_user_menu():
     """Prints the user's menu."""
@@ -168,13 +197,13 @@ Options:
 - 2: Add follower
 - 3: Unfollow a user
 - 4: List friends
-- 6: Add post
-- 7: Remove post
-- 8: View feed
-- 9: Add comment
-- 10: Remove comment
-- 11: View feed with comments
-- 12: Get most active user
+- 5: Add post
+- 6: Remove post
+- 7: View feed
+- 8: Add comment
+- 9: Remove comment
+- 10: View feed with comments
+- 11: Get most active user
 - 0: Exit
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~""")
 
@@ -188,6 +217,7 @@ Options:
 - 2: Remove a user
 - 3: List all users
 - 4: Login user
+- 5: Get most active user
 - 0: Exit
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~""")
 
@@ -198,34 +228,34 @@ def login_user():
     password = getpass.getpass(prompt="What is your password? ")
     if models.valid_user(username, password):
         print("Welcome back, " + username)
+        session = Session(username)
         while True:
             print_user_menu()
             choice = input("What would you like to do? ")
             print()
             if choice == "1":
                 print("Goodbye " + username)
+                session.logout()
                 break
             elif choice == "2":
-                add_follower()
+                add_follower(session)
             elif choice == "3":
-                remove_follower()
+                remove_follower(session)
             elif choice == "4":
-                list_followers_and_following()
+                list_followers_and_following(session)
             elif choice == "5":
-                list_followers_and_following()
+                add_post(session)
             elif choice == "6":
-                add_post()
+                remove_post(session)
             elif choice == "7":
-                remove_post()
-            elif choice == "8":
                 view_feed()
+            elif choice == "8":
+                add_comment(session)
             elif choice == "9":
-                add_comment()
-            elif choice == "10":
                 remove_comment()
-            elif choice == "11":
+            elif choice == "10":
                 view_feed_with_comments()
-            elif choice == "12":
+            elif choice == "11":
                 get_most_active_user()
             elif choice == "0":
                 close()
@@ -256,6 +286,8 @@ def main():
             list_users()
         elif choice == "4":
             login_user()
+        elif choice == "5":
+            get_most_active_user()
         elif choice == "0":
             break
         else:
