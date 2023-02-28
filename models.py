@@ -302,37 +302,32 @@ def fetch_post_feed():
     return posts
 
 def get_most_active_user():
+    """Returns the user with the most posts and comments on other posts."""
+
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
 
-    # Get all users
-    cursor.execute('SELECT _id, username FROM people')
+    # Get all users with their posts and comments count
+    cursor.execute('''
+        SELECT people.username, COUNT(DISTINCT posts._id) AS num_posts,
+        COUNT(DISTINCT comments._id) AS num_comments
+        FROM people
+        LEFT JOIN posts ON people._id = posts.author_id
+        LEFT JOIN comments ON people._id = comments.author_id
+        GROUP BY people.username
+    ''')
     users = cursor.fetchall()
 
-    # Initialize dictionary to keep track of activity counts
-    activity_counts = {}
+    # Find the user with the highest sum of posts and comments count
+    most_active_user = None
+    max_posts_comments = 0
     for user in users:
-        activity_counts[user[0]] = 0
-
-    # Get counts of posts for each user
-    cursor.execute('SELECT author_id, COUNT(*) FROM posts GROUP BY author_id')
-    post_counts = cursor.fetchall()
-    for post_count in post_counts:
-        activity_counts[post_count[0]] += post_count[1]
-
-    # Get counts of comments for each user
-    cursor.execute('SELECT author_id, COUNT(*) FROM comments GROUP BY author_id')
-    comment_counts = cursor.fetchall()
-    for comment_count in comment_counts:
-        activity_counts[comment_count[0]] += comment_count[1]
-
-    # Get user with highest activity count
-    most_active_user_id = max(activity_counts, key=activity_counts.get)
-
-    # Get username of most active user
-    cursor.execute('SELECT username FROM people WHERE _id = ?', (most_active_user_id,))
-    most_active_user = cursor.fetchone()[0]
+        posts_comments = user[1] + user[2]
+        if posts_comments > max_posts_comments:
+            max_posts_comments = posts_comments
+            most_active_user = user[0]
 
     # Close database connection and return most active user
     conn.close()
     return most_active_user
+
