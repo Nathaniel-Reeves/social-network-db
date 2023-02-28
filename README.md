@@ -81,23 +81,23 @@ Great, here are the commands you can use to run the unittest_projecty.py file:
 
 To run all the tests in the file:
 ``` bash
-python unittest_projecty.py
+python unittest_project.py
 ```
 To run specific tests using the test name:
 ``` bash
-python unittest_projecty.py -k test_method_name
+python unittest_project.py -k test_method_name
 ```
 Replace test_method_name with the actual name of the test method you want to run.
 
 To run specific test classes using the class name:
 ``` bash
-python unittest_projecty.py -k ClassName
+python unittest_project.py -k ClassName
 ```
 Replace ClassName with the actual name of the test class you want to run.
 
 To run the tests with more detailed output:
 ``` bash
-python unittest_projecty.py -v
+python unittest_project.py -v
 ```
 The -v flag stands for verbose and will output more information about the tests.
 
