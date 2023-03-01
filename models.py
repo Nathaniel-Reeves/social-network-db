@@ -439,7 +439,9 @@ def get_followers_and_following(user_id):
 
 
 def get_bacon_number(lookup_user_id):
-    """Returns the bacon number of the most active user."""
+    """Returns the bacon number of other users to a lookup user.
+    bacon number is calculated by the number of followers awway from
+    the lookup user."""
 
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
@@ -458,23 +460,23 @@ def get_bacon_number(lookup_user_id):
         FROM(
             WITH RECURSIVE bacon_numbers(_id, name, bacon_number) AS(
                 SELECT
-                _id,
-                name,
-                0 AS bacon_number
+                    _id,
+                    name,
+                    0 AS bacon_number
                 FROM people
                 WHERE _id= {lookup_user_id}
 
                 UNION
 
                 SELECT
-                p._id,
-                p.name,
-                bn.bacon_number + 1
+                    p._id,
+                    p.name,
+                    bn.bacon_number + 1
                 FROM following f1
                 JOIN bacon_numbers bn ON
-                bn._id=f1._id
+                    bn._id=f1._id
                 JOIN people p ON
-                f1.following_id=p._id
+                    f1.following_id=p._id
                 WHERE bn.bacon_number < {table_size}
             )
             SELECT
@@ -489,23 +491,23 @@ def get_bacon_number(lookup_user_id):
         FROM(
             WITH RECURSIVE bacon_numbers(_id, name, bacon_number) AS(
                 SELECT
-                _id,
-                name,
-                0 AS bacon_number
+                    _id,
+                    name,
+                    0 AS bacon_number
                 FROM people
                 WHERE _id= {lookup_user_id}
 
                 UNION
 
                 SELECT
-                p._id,
-                p.name,
-                bn.bacon_number + 1
+                    p._id,
+                    p.name,
+                    bn.bacon_number + 1
                 FROM following f1
                 JOIN bacon_numbers bn ON
-                bn._id=f1.following_id
+                    bn._id=f1.following_id
                 JOIN people p ON
-                f1._id=p._id
+                    f1._id=p._id
                 WHERE bn.bacon_number < {table_size}
             )
             SELECT
