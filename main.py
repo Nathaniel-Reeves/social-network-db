@@ -151,6 +151,16 @@ def get_most_active_user():
     print("Most active user is:", user)
     print()
 
+def get_bacon_number():
+    lookup_user = input("Enter the username of the user you would like to look up: ")
+    lookup_id = models.get_user_id(lookup_user)
+    bacon_data = models.get_bacon_number(lookup_id)
+
+    print("Bacon Results for user:", lookup_user)
+    for b in bacon_data:
+        print("   User {: >20} has a Bacon number of: {}".format(b[1], b[2]))
+    print()
+
 def add_comment(session):
     """adds a comment to the database."""
     id = input("Enter id of post you would like to comment on: ")
@@ -203,7 +213,8 @@ Options:
 - 8: Add comment
 - 9: Remove comment
 - 10: View feed with comments
-- 11: Get most active user
+- 11: Get most active user\
+- 12: Get bacon number
 - 0: Exit
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~""")
 
@@ -218,6 +229,7 @@ Options:
 - 3: List all users
 - 4: Login user
 - 5: Get most active user
+- 6: Get bacon number
 - 0: Exit
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~""")
 
@@ -257,6 +269,8 @@ def login_user():
                 view_feed_with_comments()
             elif choice == "11":
                 get_most_active_user()
+            elif choice == "12":
+                get_bacon_number()
             elif choice == "0":
                 close()
             else:
@@ -288,6 +302,8 @@ def main():
             login_user()
         elif choice == "5":
             get_most_active_user()
+        elif choice == "6":
+            get_bacon_number()
         elif choice == "0":
             break
         else:

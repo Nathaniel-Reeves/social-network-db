@@ -436,3 +436,92 @@ def get_followers_and_following(user_id):
     # Close database connection and return results
     conn.close()
     return followers, following
+
+
+def get_bacon_number(lookup_user_id):
+    """Returns the bacon number of the most active user."""
+
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+
+    people_table_size = cursor.execute(
+        "SELECT COUNT(*) FROM people").fetchone()[0] - 1
+
+    cursor.execute('''
+    SELECT
+        _id,
+        name,
+        MIN(bacon_number) as n
+    FROM(
+        SELECT
+        *
+        FROM(
+            WITH RECURSIVE bacon_numbers(_id, name, bacon_number) AS(
+                SELECT
+                _id,
+                name,
+                0 AS bacon_number
+                FROM people
+                WHERE _id= {lookup_user_id}
+
+                UNION
+
+                SELECT
+                p._id,
+                p.name,
+                bn.bacon_number + 1
+                FROM following f1
+                JOIN bacon_numbers bn ON
+                bn._id=f1._id
+                JOIN people p ON
+                f1.following_id=p._id
+                WHERE bn.bacon_number < {table_size}
+            )
+            SELECT
+            *
+            FROM bacon_numbers
+        )
+
+        UNION
+
+        SELECT
+        *
+        FROM(
+            WITH RECURSIVE bacon_numbers(_id, name, bacon_number) AS(
+                SELECT
+                _id,
+                name,
+                0 AS bacon_number
+                FROM people
+                WHERE _id= {lookup_user_id}
+
+                UNION
+
+                SELECT
+                p._id,
+                p.name,
+                bn.bacon_number + 1
+                FROM following f1
+                JOIN bacon_numbers bn ON
+                bn._id=f1.following_id
+                JOIN people p ON
+                f1._id=p._id
+                WHERE bn.bacon_number < {table_size}
+            )
+            SELECT
+            *
+            FROM bacon_numbers
+        )
+    )
+    GROUP BY
+        _id
+    ORDER BY
+        bacon_number,
+        name DESC
+    '''.format(lookup_user_id=lookup_user_id, table_size=people_table_size))
+
+    bacon_numbers = cursor.fetchall()
+
+    # Close database connection and return bacon number
+    conn.close()
+    return bacon_numbers
